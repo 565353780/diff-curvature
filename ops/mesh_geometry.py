@@ -282,7 +282,12 @@ def dual_gather_from_face_features_to_vertices_packed(
         dim_size=V,
     )
     dual_area_vert = get_dual_area_vertex_packed(mesh)
-    return interal_features * (dual_area_vert.reciprocal().view(-1, 1))
+
+    reciprocal_dual_area_vert = dual_area_vert.reciprocal()
+
+    reciprocal_dual_area_vert[torch.where(torch.isinf(reciprocal_dual_area_vert))] = 1e6
+
+    return interal_features * (reciprocal_dual_area_vert.view(-1, 1))
 
 
 def dual_interpolation_from_verts_to_faces_packed(
@@ -627,4 +632,3 @@ def sample_points_from_meshes_by_curvature(
         return sampled_points, sampled_normals
 
     return sampled_points
-

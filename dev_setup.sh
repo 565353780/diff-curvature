@@ -9,5 +9,7 @@ pip install "git+https://github.com/facebookresearch/pytorch3d.git"
 
 pip install torch-scatter -f https://data.pyg.org/whl/torch-2.7.0+cu128.html
 
+pip install pyglet==1.5.13
+
 cd nvdiffrast
 pip install .
