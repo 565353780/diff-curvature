@@ -19,7 +19,7 @@ class SolidAngle(nn.Module):
         b_vert = batch_of_three_vectors[..., 1, :]  # [B, 3]
         c_vert = batch_of_three_vectors[..., 2, :]  # [B, 3]
 
-        face_det = (a_vert * b_vert.cross(c_vert)).sum(dim=-1)  # [B,]
+        face_det = (a_vert * torch.linalg.cross(b_vert, c_vert)).sum(dim=-1)  # [B,]
 
         abc = batch_of_three_vectors.norm(dim=-1).prod(dim=-1)  # [B,3]-->[B,]
 

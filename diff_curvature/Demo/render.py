@@ -5,7 +5,7 @@ import warnings
 from pytorch3d.io import load_objs_as_meshes
 
 from diff_curvature.Method.io import save_image
-import diff_curvature.Method.mesh_geometry as mg
+from diff_curvature.Method.Mesh.geometry import normalize_mesh
 from diff_curvature.Method.render import make_star_cameras
 from diff_curvature.Module.Renderer.alpha import AlphaRenderer
 from diff_curvature.Module.Renderer.multi_channel import MultiChannelRenderer
@@ -35,7 +35,7 @@ def demo(
         os.makedirs(image_save_path, exist_ok=True)
 
     mesh_tem = load_objs_as_meshes([mesh_path], device=DEVICE)
-    mesh_tem = mg.normalize_mesh(mesh_tem, 0.88)
+    mesh_tem = normalize_mesh(mesh_tem, 0.88)
 
     verts, faces = mesh_tem.verts_list()[0], mesh_tem.faces_list()[0]
 

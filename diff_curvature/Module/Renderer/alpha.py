@@ -4,7 +4,7 @@ import nvdiffrast.torch as dr
 from pytorch3d.structures import Meshes
 
 from diff_curvature.Config.light import LIGHT_DIR
-from diff_curvature.Method.mesh_geometry import (
+from diff_curvature.Method.Mesh.curvature import (
     get_gaussian_curvature_vertices_packed,
     get_mean_curvature_vertices_packed,
 )

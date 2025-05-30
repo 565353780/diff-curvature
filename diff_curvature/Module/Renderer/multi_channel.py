@@ -1,6 +1,6 @@
 import torch
 
-from diff_curvature.Method.mesh_normal import calc_vertex_normals
+from diff_curvature.Method.Mesh.normal import calc_vertex_normals
 from diff_curvature.Module.Renderer.alpha import AlphaRenderer
 
 
