@@ -17,11 +17,13 @@ from diff_curvature.Method.Mesh.curvature import (
 
 
 class MeshCurvature(object):
-    def __init__(self, mesh_file_path: Union[str, None] = None) -> None:
+    def __init__(
+        self, mesh_file_path: Union[str, None] = None, device: str = "cpu"
+    ) -> None:
         self.mesh = None
 
         if mesh_file_path is not None:
-            self.loadMesh(mesh_file_path)
+            self.loadMesh(mesh_file_path, device)
         return
 
     def reset(self) -> bool:
@@ -34,7 +36,7 @@ class MeshCurvature(object):
 
         return True
 
-    def loadMesh(self, mesh_file_path: str) -> bool:
+    def loadMesh(self, mesh_file_path: str, device: str = "cpu") -> bool:
         self.reset()
 
         if not os.path.exists(mesh_file_path):
@@ -48,7 +50,7 @@ class MeshCurvature(object):
         vertices = torch.from_numpy(np.asarray(mesh_o3d.vertices).astype(np.float32))
         faces = torch.from_numpy(np.asarray(mesh_o3d.triangles).astype(np.int64))
 
-        self.mesh = Meshes(verts=[vertices], faces=[faces])
+        self.mesh = Meshes(verts=[vertices], faces=[faces]).to(device)
         return True
 
     def toGaussV(self) -> torch.Tensor:

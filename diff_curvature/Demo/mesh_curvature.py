@@ -3,8 +3,9 @@ from diff_curvature.Module.mesh_curvature import MeshCurvature
 
 def demo():
     mesh_file_path = "/home/chli/chLi/Dataset/vae-eval/mesh/000.obj"
+    device = "cuda:0"
 
-    mesh_curvature = MeshCurvature(mesh_file_path)
+    mesh_curvature = MeshCurvature(mesh_file_path, device)
 
     if not mesh_curvature.isValid():
         print("load mesh failed!")
