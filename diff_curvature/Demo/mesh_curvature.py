@@ -1,30 +1,36 @@
-import torch
-from pytorch3d.io import load_obj
-from pytorch3d.structures import Meshes
-
-from diff_curvature.Method.Mesh.curvature import (
-    get_gaussian_curvature_vertices_packed,
-    get_gaussian_curvature_vertices_from_face_packed,
-    get_gaussian_curvature_faces_packed,
-    get_mean_curvature_vertices_packed,
-    get_mean_curvature_faces_packed,
-    get_total_curvature_vertices_packed,
-    get_total_curvature_faces_packed,
-)
+from diff_curvature.Module.mesh_curvature import MeshCurvature
 
 
 def demo():
-    trg_obj = "/home/chli/chLi/Dataset/vae-eval/mesh/000.obj"
+    mesh_file_path = "/home/chli/chLi/Dataset/vae-eval/mesh/000.obj"
 
-    verts, faces = load_obj(trg_obj)[:2]
+    mesh_curvature = MeshCurvature(mesh_file_path)
 
-    trg_mesh = Meshes(verts=[verts], faces=[faces.verts_idx])
+    if not mesh_curvature.isValid():
+        print("load mesh failed!")
+        return False
 
-    # gaussian curvature of the vertices and topological characteristics
-    curvature_vertex_packed = get_gaussian_curvature_vertices_from_face_packed(trg_mesh)
+    gauss_vc = mesh_curvature.toGaussV()
+    gauss_fvc = mesh_curvature.toGaussFV()
+    gauss_fc = mesh_curvature.toGaussF()
 
-    print(curvature_vertex_packed.shape)
-    print(torch.min(curvature_vertex_packed))
-    print(torch.mean(curvature_vertex_packed))
-    print(torch.max(curvature_vertex_packed))
+    mean_vc = mesh_curvature.toMeanV()
+    mean_fc = mesh_curvature.toMeanF()
+
+    total_vc = mesh_curvature.toTotalV()
+    total_fc = mesh_curvature.toTotalF()
+
+    print("==== Gauss ====")
+    print("V:", gauss_vc.min(), gauss_vc.mean(), gauss_vc.max())
+    print("FV:", gauss_fvc.min(), gauss_fvc.mean(), gauss_fvc.max())
+    print("F:", gauss_fc.min(), gauss_fc.mean(), gauss_fc.max())
+
+    print("==== Mean ====")
+    print("V:", mean_vc.min(), mean_vc.mean(), mean_vc.max())
+    print("F:", mean_fc.min(), mean_fc.mean(), mean_fc.max())
+
+    print("==== Total ====")
+    print("V:", total_vc.min(), total_vc.mean(), total_vc.max())
+    print("F:", total_fc.min(), total_fc.mean(), total_fc.max())
+
     return True
