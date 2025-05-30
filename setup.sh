@@ -10,5 +10,4 @@ pip install "git+https://github.com/facebookresearch/pytorch3d.git"
 pip install torch-scatter -f https://data.pyg.org/whl/torch-2.7.0+cu128.html
 
 cd nvdiffrast
-
-./run_sample.sh ./samples/torch/cube.py --resolution 32
+pip install .

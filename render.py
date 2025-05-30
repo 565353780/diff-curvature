@@ -500,7 +500,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--mesh_path", type=str, default="data_example/Kar.obj")
     # parser.add_argument("--seed", type=int, default=1)
-    parser.add_argument("--result_dir", type=str, default="results/")
+    parser.add_argument("--result_dir", type=str, default="output/")
 
     parser.add_argument("--num_viewpoints", type=int, default=6)
     parser.add_argument("--image_size", type=int, default=256)
@@ -583,4 +583,3 @@ if __name__ == "__main__":
 
     print("Saved images to: ", image_save_path)
     print("======== Done! ========")
-
