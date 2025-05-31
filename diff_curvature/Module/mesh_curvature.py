@@ -21,10 +21,12 @@ class MeshCurvature(object):
     def __init__(
         self, mesh_file_path: Union[str, None] = None, device: str = "cpu"
     ) -> None:
+        self.device = device
+
         self.mesh = None
 
         if mesh_file_path is not None:
-            self.loadMesh(mesh_file_path, device)
+            self.loadMeshFile(mesh_file_path, device)
         return
 
     def reset(self) -> bool:
@@ -37,21 +39,41 @@ class MeshCurvature(object):
 
         return True
 
-    def loadMesh(self, mesh_file_path: str, device: str = "cpu") -> bool:
+    def loadMesh(
+        self,
+        vertices: Union[torch.Tensor, np.ndarray],
+        triangles: Union[torch.Tensor, np.ndarray],
+        device: str = "cpu",
+    ) -> bool:
         self.reset()
 
+        self.device = device
+
+        if isinstance(vertices, np.ndarray):
+            vertices = torch.from_numpy(vertices.astype(np.float32))
+        if isinstance(triangles, np.ndarray):
+            triangles = torch.from_numpy(triangles.astype(np.int64))
+
+        self.mesh = Meshes(verts=[vertices], faces=[triangles]).to(self.device)
+        return True
+
+    def loadMeshFile(self, mesh_file_path: str, device: str = "cpu") -> bool:
         if not os.path.exists(mesh_file_path):
-            print("[ERROR][MeshCurvature::loadMesh]")
+            print("[ERROR][MeshCurvature::loadMeshFile]")
             print("\t mesh file not exist!")
             print("\t mesh_file_path:", mesh_file_path)
             return False
 
         mesh_o3d = o3d.io.read_triangle_mesh(mesh_file_path)
 
-        vertices = torch.from_numpy(np.asarray(mesh_o3d.vertices).astype(np.float32))
-        faces = torch.from_numpy(np.asarray(mesh_o3d.triangles).astype(np.int64))
+        vertices = np.asarray(mesh_o3d.vertices)
+        triangles = np.asarray(mesh_o3d.triangles)
 
-        self.mesh = Meshes(verts=[vertices], faces=[faces]).to(device)
+        if not self.loadMesh(vertices, triangles, device):
+            print("[ERROR][MeshCurvature::loadMeshFile]")
+            print("\t loadMesh failed!")
+            return False
+
         return True
 
     def toGaussV(self) -> torch.Tensor:
