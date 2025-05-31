@@ -1,5 +1,8 @@
 import torch
+import numpy as np
+import open3d as o3d
 import nvdiffrast.torch as dr
+import matplotlib.pyplot as plt
 
 
 def _translation(x, y, z, device):
@@ -79,3 +82,61 @@ def _warmup(glctx):
     )
     tri = tensor([[0, 1, 2]], dtype=torch.int32)
     dr.rasterize(glctx, pos, tri, resolution=[256, 256])
+
+
+def renderVertexCurvatures(
+    vertices: np.ndarray, triangles: np.ndarray, vertex_curvatures: np.ndarray
+) -> bool:
+    mesh = o3d.geometry.TriangleMesh()
+    mesh.vertices = o3d.utility.Vector3dVector(vertices)
+    mesh.triangles = o3d.utility.Vector3iVector(triangles)
+
+    print("曲率统计信息:")
+    print(f"  最小值: {np.min(vertex_curvatures):.6f}")
+    print(f"  最大值: {np.max(vertex_curvatures):.6f}")
+    print(f"  平均值: {np.mean(vertex_curvatures):.6f}")
+    print(f"  中位数: {np.median(vertex_curvatures):.6f}")
+    print(f"  标准差: {np.std(vertex_curvatures):.6f}")
+
+    min_curv = np.min(vertex_curvatures)
+    max_curv = np.max(vertex_curvatures)
+
+    if np.isclose(max_curv, min_curv):
+        print("[WARN][render::renderVertexCurvatures]")
+        print("\t all curvatures are close to 0!")
+        normalized_curvatures = np.ones_like(vertex_curvatures) * 0.5
+    else:
+        normalized_curvatures = (vertex_curvatures - min_curv) / (max_curv - min_curv)
+
+    print("normalized 曲率统计信息:")
+    print(f"  最小值: {np.min(normalized_curvatures):.6f}")
+    print(f"  最大值: {np.max(normalized_curvatures):.6f}")
+    print(f"  平均值: {np.mean(normalized_curvatures):.6f}")
+    print(f"  中位数: {np.median(normalized_curvatures):.6f}")
+    print(f"  标准差: {np.std(normalized_curvatures):.6f}")
+
+    cmap = plt.get_cmap("jet")
+    vertex_colors = np.zeros((len(vertices), 3))
+    for i, curv in enumerate(normalized_curvatures):
+        vertex_colors[i] = cmap(curv)[:3]
+
+    mesh.vertex_colors = o3d.utility.Vector3dVector(vertex_colors)
+
+    mesh.compute_vertex_normals()
+
+    vis = o3d.visualization.Visualizer()
+    vis.create_window()
+    vis.add_geometry(mesh)
+
+    opt = vis.get_render_option()
+    opt.mesh_show_back_face = True
+    opt.background_color = np.array([1, 1, 1])
+    opt.point_size = 5.0
+
+    vis.update_renderer()
+    vis.poll_events()
+    vis.update_renderer()
+
+    vis.run()
+    vis.destroy_window()
+    return True

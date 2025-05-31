@@ -22,16 +22,18 @@ def demo():
     total_fc = mesh_curvature.toTotalF()
 
     print("==== Gauss ====")
-    print("V:", gauss_vc.min(), gauss_vc.mean(), gauss_vc.max())
-    print("FV:", gauss_fvc.min(), gauss_fvc.mean(), gauss_fvc.max())
-    print("F:", gauss_fc.min(), gauss_fc.mean(), gauss_fc.max())
+    print("V:", gauss_vc.shape, gauss_vc.min(), gauss_vc.mean(), gauss_vc.max())
+    print("FV:", gauss_fvc.shape, gauss_fvc.min(), gauss_fvc.mean(), gauss_fvc.max())
+    print("F:", gauss_fc.shape, gauss_fc.min(), gauss_fc.mean(), gauss_fc.max())
 
     print("==== Mean ====")
-    print("V:", mean_vc.min(), mean_vc.mean(), mean_vc.max())
-    print("F:", mean_fc.min(), mean_fc.mean(), mean_fc.max())
+    print("V:", mean_vc.shape, mean_vc.min(), mean_vc.mean(), mean_vc.max())
+    print("F:", mean_fc.shape, mean_fc.min(), mean_fc.mean(), mean_fc.max())
 
     print("==== Total ====")
-    print("V:", total_vc.min(), total_vc.mean(), total_vc.max())
-    print("F:", total_fc.min(), total_fc.mean(), total_fc.max())
+    print("V:", total_vc.shape, total_vc.min(), total_vc.mean(), total_vc.max())
+    print("F:", total_fc.shape, total_fc.min(), total_fc.mean(), total_fc.max())
+
+    mesh_curvature.render(total_vc)
 
     return True
