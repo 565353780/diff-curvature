@@ -1,5 +1,5 @@
 cd ..
-git clone https://github.com/NVlabs/nvdiffrast
+git clone https://github.com/NVlabs/nvdiffrast.git
 git clone https://github.com/facebookresearch/pytorch3d.git
 
 pip install -U torch torchvision torchaudio
