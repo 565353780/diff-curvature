@@ -18,4 +18,8 @@ cd nvdiffrast
 pip install .
 
 cd ../pytorch3d
+export CC=$(which gcc)
+export CXX=$(which g++)
+echo "Using CC: $CC"
+echo "Using CXX: $CXX"
 pip install .
