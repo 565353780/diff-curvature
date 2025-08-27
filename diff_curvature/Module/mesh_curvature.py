@@ -14,7 +14,7 @@ from diff_curvature.Method.Mesh.curvature import (
     get_total_curvature_vertices_packed,
     get_total_curvature_faces_packed,
 )
-from diff_curvature.Method.render import renderVertexCurvatures
+from diff_curvature.Method.render import renderTriangleCurvatures
 
 
 class MeshCurvature(object):
@@ -110,12 +110,12 @@ class MeshCurvature(object):
             print("\t isValid failed!")
             return False
 
-        if curvatures.shape[0] != self.mesh._V:
+        if curvatures.shape[0] != self.mesh._F:
             print("[ERROR][MeshCurvature::render]")
-            print("\t only support vertex curvatures now!")
+            print("\t only support triangle curvatures now!")
             return False
 
-        renderVertexCurvatures(
+        renderTriangleCurvatures(
             self.mesh.verts_packed().cpu().numpy(),
             self.mesh.faces_packed().cpu().numpy(),
             curvatures.cpu().numpy(),

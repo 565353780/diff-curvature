@@ -3,6 +3,7 @@ import numpy as np
 import open3d as o3d
 import nvdiffrast.torch as dr
 import matplotlib.pyplot as plt
+from typing import Union
 
 
 def _translation(x, y, z, device):
@@ -84,7 +85,44 @@ def _warmup(glctx):
     dr.rasterize(glctx, pos, tri, resolution=[256, 256])
 
 
-def renderVertexCurvatures(
+def toTriangleSoup(mesh: o3d.geometry.TriangleMesh) -> o3d.geometry.TriangleMesh:
+    all_vertices = []
+    all_triangles = []
+
+    vertices = np.asarray(mesh.vertices)
+    triangles = np.asarray(mesh.triangles)
+
+    for tri in triangles:
+        v0, v1, v2 = vertices[tri]
+
+        base_idx = len(all_vertices)
+        all_vertices.extend([v0, v1, v2])
+        all_triangles.append([base_idx, base_idx + 1, base_idx + 2])
+
+    all_vertices = np.array(all_vertices)
+    all_triangles = np.array(all_triangles)
+
+    triangle_soup = o3d.geometry.TriangleMesh()
+    triangle_soup.vertices = o3d.utility.Vector3dVector(all_vertices)
+    triangle_soup.triangles = o3d.utility.Vector3iVector(all_triangles)
+    return triangle_soup
+
+
+def paintTriangleSoup(
+    triangle_soup: o3d.geometry.TriangleMesh,
+    triangle_colors: Union[np.ndarray, list],
+) -> bool:
+    triangles = np.asarray(triangle_soup.triangles)
+
+    vertex_colors = np.zeros_like(np.asarray(triangle_soup.vertices))
+    for i, triangle in enumerate(triangles):
+        vertex_colors[triangle] = triangle_colors[i]
+
+    triangle_soup.vertex_colors = o3d.utility.Vector3dVector(vertex_colors)
+    return True
+
+
+def renderTriangleCurvatures(
     vertices: np.ndarray, triangles: np.ndarray, vertex_curvatures: np.ndarray
 ) -> bool:
     mesh = o3d.geometry.TriangleMesh()
@@ -115,18 +153,18 @@ def renderVertexCurvatures(
     print(f"  中位数: {np.median(normalized_curvatures):.6f}")
     print(f"  标准差: {np.std(normalized_curvatures):.6f}")
 
+    triangle_soup = toTriangleSoup(mesh)
+
     cmap = plt.get_cmap("jet")
-    vertex_colors = np.zeros((len(vertices), 3))
+    triangle_colors = np.zeros([triangles.shape[0], 3])
     for i, curv in enumerate(normalized_curvatures):
-        vertex_colors[i] = cmap(curv)[:3]
+        triangle_colors[i] = cmap(curv)[:3]
 
-    mesh.vertex_colors = o3d.utility.Vector3dVector(vertex_colors)
-
-    mesh.compute_vertex_normals()
+    paintTriangleSoup(triangle_soup, triangle_colors)
 
     vis = o3d.visualization.Visualizer()
     vis.create_window()
-    vis.add_geometry(mesh)
+    vis.add_geometry(triangle_soup)
 
     opt = vis.get_render_option()
     opt.mesh_show_back_face = True
